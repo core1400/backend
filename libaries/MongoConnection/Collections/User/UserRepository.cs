@@ -1,9 +1,4 @@
 ﻿using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MongoConnection.Collections.User
 {
@@ -12,37 +7,44 @@ namespace MongoConnection.Collections.User
         public IMongoCollection<User> _userCollection;
         public UserRepository(MongoContext mongoContext)
         {
-            _userCollection = mongoContext.GetCollection<User>("Users");    
+            _userCollection = mongoContext.GetCollection<User>(Consts.USER_DATABASE_NAME);    
         }
 
-        public Task CreateAsync(User entity)
+        public async Task CreateAsync(User user)
         {
-            throw new NotImplementedException();
+            await _userCollection.InsertOneAsync(user);
         }
 
-        public Task DeleteAsync(string id)
+        public async Task DeleteByPersonalNumberAsync(int personalNumber)
         {
-            throw new NotImplementedException();
+            await _userCollection.DeleteOneAsync(user => user.personalNumber == personalNumber);
         }
 
-        public Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<User>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _userCollection.Find(FilterDefinition<User>.Empty).ToListAsync();
         }
 
-        public Task<User> GetByIdAsync(string id)
+        public async Task<User> GetByPersonalNumberAsync(int personalNumber)
         {
-            throw new NotImplementedException();
+            return await _userCollection.Find(user => user.personalNumber == personalNumber).FirstOrDefaultAsync();
         }
 
-        public Task<User?> GetByNameAsync(string name)
+        public async Task UpdateAsync(string id, User user)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); // To Do: think about  List<UpdateDefinition<User>> and partial user
+            // how would it work with api and how to implement
+
         }
 
-        public Task UpdateAsync(string id, User entity)
+        public async Task<User> GetByIdAsync(string id)
         {
-            throw new NotImplementedException();
+            return await _userCollection.Find(user => user.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task DeleteByIdAsync(string id)
+        {
+            await _userCollection.DeleteOneAsync(user => user.Id == id);
         }
     }
 }

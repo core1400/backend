@@ -1,7 +1,8 @@
 ﻿namespace MongoConnection.Collections.User
 {
-    public interface IUser : IRepository<User>
+    internal interface IUserRepository : IRepository<User>
     {
-        Task<User?> GetByNameAsync(string name);
+        Task<User> GetByPersonalNumberAsync(int personalNubmer); 
+        Task DeleteByPersonalNumberAsync(int personalNubmer);
     }
 }
