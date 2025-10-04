@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
 
-namespace MongoConnection.Collections.User
+namespace MongoConnection.Collections.UserModel
 {
     public class UserRepository : IUserRepository
     {
@@ -17,7 +17,7 @@ namespace MongoConnection.Collections.User
 
         public async Task DeleteByPersonalNumberAsync(int personalNumber)
         {
-            await _userCollection.DeleteOneAsync(user => user.personalNumber == personalNumber);
+            await _userCollection.DeleteOneAsync(user => user.PersonalNumber == personalNumber);
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()
@@ -27,7 +27,7 @@ namespace MongoConnection.Collections.User
 
         public async Task<User> GetByPersonalNumberAsync(int personalNumber)
         {
-            return await _userCollection.Find(user => user.personalNumber == personalNumber).FirstOrDefaultAsync();
+            return await _userCollection.Find(user => user.PersonalNumber == personalNumber).FirstOrDefaultAsync();
         }
 
         public async Task UpdateAsync(string id, User user)

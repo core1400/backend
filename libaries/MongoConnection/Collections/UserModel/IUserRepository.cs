@@ -1,4 +1,4 @@
-﻿namespace MongoConnection.Collections.User
+﻿namespace MongoConnection.Collections.UserModel
 {
     internal interface IUserRepository : IRepository<User>
     {
