@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using System.Text.Json;
 
 namespace MongoConnection.Collections.UserModel
 {
@@ -25,19 +26,38 @@ namespace MongoConnection.Collections.UserModel
             return await _userCollection.Find(FilterDefinition<User>.Empty).ToListAsync();
         }
 
-        public async Task<User> GetByPersonalNumberAsync(int personalNumber)
+        public async Task<User?> GetByPersonalNumberAsync(int personalNumber)
         {
             return await _userCollection.Find(user => user.PersonalNumber == personalNumber).FirstOrDefaultAsync();
         }
 
-        public async Task UpdateAsync(string id, User user)
+        public async Task UpdateAsync(string id, JsonElement updateElements)
         {
-            throw new NotImplementedException(); // To Do: think about  List<UpdateDefinition<User>> and partial user
-            // how would it work with api and how to implement
+            List<UpdateDefinition<User>> updateDef = new List<UpdateDefinition<User>>();
+            UpdateDefinitionBuilder<User> builder = Builders<User>.Update;
 
+            foreach (JsonProperty prop in updateElements.EnumerateObject())
+                updateDef.Add(builder.Set(prop.Name, prop.Value.GetString()));
+
+            UpdateDefinition<User> combined = builder.Combine(updateDef);
+            await _userCollection.UpdateOneAsync(user => user.Id == id, combined);
         }
 
-        public async Task<User> GetByIdAsync(string id)
+
+        public async Task UpdateByPersonalNumberAsync(int personalNumber, JsonElement updateElements)
+        {
+            List<UpdateDefinition<User>> updateDef = new List<UpdateDefinition<User>>();
+            UpdateDefinitionBuilder<User> builder = Builders<User>.Update;
+
+            foreach (JsonProperty prop in updateElements.EnumerateObject())
+                updateDef.Add(builder.Set(prop.Name, prop.Value.GetString()));
+
+            UpdateDefinition<User> combined = builder.Combine(updateDef);
+            await _userCollection.UpdateOneAsync(user => user.PersonalNumber == personalNumber, combined);
+        }
+
+
+        public async Task<User?> GetByIdAsync(string id)
         {
             return await _userCollection.Find(user => user.Id == id).FirstOrDefaultAsync();
         }
