@@ -34,75 +34,50 @@ namespace MongoConnection.Collections.UserModel
 
         public async Task UpdateAsync(string id, JsonElement updateElements)
         {
-            List<UpdateDefinition<User>> updateDef = new List<UpdateDefinition<User>>();
-            UpdateDefinitionBuilder<User> builder = Builders<User>.Update;
-
-            foreach (JsonProperty prop in updateElements.EnumerateObject())
-                updateDef.Add(builder.Set(prop.Name, prop.Value.GetString()));
-
-            UpdateDefinition<User> combined = builder.Combine(updateDef);
+            UpdateDefinition<User> combined = GenericUpdate(updateElements);
             await _userCollection.UpdateOneAsync(user => user.Id == id, combined);
         }
 
         public async Task UpdateByPNumAsync(int personalNumber, JsonElement updateElements)
         {
+            UpdateDefinition<User> combined =  GenericUpdate(updateElements);
+            await _userCollection.UpdateOneAsync(user => user.PersonalNumber == personalNumber, combined);
+        }
+        private UpdateDefinition<User> GenericUpdate(JsonElement updateElements)
+        {
             List<UpdateDefinition<User>> updateDef = new List<UpdateDefinition<User>>();
             UpdateDefinitionBuilder<User> builder = Builders<User>.Update;
 
             foreach (JsonProperty prop in updateElements.EnumerateObject())
-            {
-                if(prop.Value.ValueKind == JsonValueKind.Object)
-                {
-                    //(string path,Object value) = GetObjectPath(prop);
-                    UpadteAllObjectRecursion(prop, "", ref updateDef, ref builder);
-                    //updateDef.Add(builder.Set(path, value));
-                }
-                //else updateDef.Add(builder.Set(prop.Name, GetJsonType(prop.Value)));
-            }
+                if (prop.Value.ValueKind == JsonValueKind.Object)
+                    try
+                    {
+                        UpadteAllObjectRecursion(prop, String.Empty, ref updateDef, ref builder);
+                    }
+                    catch (Exception e) { }
+                else updateDef.Add(builder.Set(prop.Name, ConvertJsonType(prop.Value)));
 
             UpdateDefinition<User> combined = builder.Combine(updateDef);
-            await _userCollection.UpdateOneAsync(user => user.PersonalNumber == personalNumber, combined);
+            return combined;
         }
 
         private void UpadteAllObjectRecursion(JsonProperty mainProp,string path,ref List<UpdateDefinition<User>> updateDef,ref UpdateDefinitionBuilder<User> builder)
         {
-            path +=  mainProp.Name+".";
+            path +=  mainProp.Name+Consts.MONGO_DICTIONARY_SEPERATOR;
             if (mainProp.Value.ValueKind != JsonValueKind.Object)
             {
-                path = path.Remove(path.Length - 1);
-                updateDef.Add(builder.Set(path, GetJsonType(mainProp.Value)));
+                path = path.Remove(path.Length - 1); // remove the extra dot at the end
+                updateDef.Add(builder.Set(path, ConvertJsonType(mainProp.Value)));
                 return;
             }
+
             foreach (JsonProperty prop in mainProp.Value.EnumerateObject())
                 UpadteAllObjectRecursion(prop, path,ref updateDef,ref builder);
         }
 
-        //private (string path, Object) GetObjectPath(JsonProperty prop)
-        //{
-        //    string path = prop.Name;
-        //    JsonElement newProp = prop.Value;
-        //    while (newProp.ValueKind == JsonValueKind.Object)
-        //    {
-        //        JsonProperty temp = newProp.EnumerateObject().First();
-        //        path += "." + temp.Name;
-        //        newProp = temp.Value;
-        //        Console.WriteLine(path);
-        //        Console.WriteLine(newProp.ToString());
-        //        Console.WriteLine(newProp.GetRawText());
-                
-        //    }
-           
-        //    Console.WriteLine(newProp.GetRawText());
-        //    Console.WriteLine(path);
-
-        //    return (path, GetJsonType(newProp));
-        //}
-
-
-        private Object GetJsonType(JsonElement prop)
+        private Object? ConvertJsonType(JsonElement prop)
         {
             Object ? value = null;
-            Console.WriteLine(  prop.ValueKind);
             switch (prop.ValueKind)
             {
                 case JsonValueKind.String:
