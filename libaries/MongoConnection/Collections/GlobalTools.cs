@@ -71,16 +71,13 @@ namespace MongoConnection.Collections
             foreach ((string bsonName,PropertyInfo bsonType) modelProp in _bsonNameCache[nameof(collectionType)])
                 if(modelProp.bsonName == prop.Name)
                     arrayType = modelProp.bsonType.PropertyType.GetElementType();
-            Console.WriteLine(arrayType == string s);
+            
             switch (arrayType)
             {
-                case string s:
-                    Console.WriteLine(  "hjjjjjjjjj");
+                case Type t when t == typeof(string):
                     string[] ret = new string[pushItems.Length];
-                    Console.WriteLine(pushItems[0].ToString());
                     for(int i = 0; i < pushItems.Length; i++)
                         ret[i] = pushItems[i].ToString() ?? String.Empty;
-                    Console.WriteLine(ret.First());
                     updateDef.Add(builder.PushEach(prop.Name, (string[])ret));
                     break;
 
