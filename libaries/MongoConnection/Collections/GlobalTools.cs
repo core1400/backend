@@ -15,12 +15,13 @@ namespace MongoConnection.Collections
 
             foreach (JsonProperty prop in updateElements.EnumerateObject())
             {
-                Console.WriteLine(prop.Name);
-                Console.WriteLine(IsPropArray(prop.Name));
-                if(DocumentHasProperty(prop))
-                    if(IsPropArray(prop.Name) && prop.Value.ValueKind == JsonValueKind.Array)
-                        updateDef.Add(builder.Set(prop.Name, ConvertJsonType(prop.Value)));
-                    
+                Console.WriteLine(  prop.Name);
+                Console.WriteLine(DocumentHasProperty(prop));
+                if (DocumentHasProperty(prop))
+                {
+                    if (IsPropArray(prop))
+                        UpdateArray(prop,ref updateDef,ref builder);
+
                     else if (prop.Value.ValueKind == JsonValueKind.Object)
                         try
                         {
@@ -28,29 +29,96 @@ namespace MongoConnection.Collections
                         }
                         catch (Exception e) { }
                     else updateDef.Add(builder.Set(prop.Name, ConvertJsonType(prop.Value)));
+                }
             }
 
             UpdateDefinition<collectionType> combined = builder.Combine(updateDef);
             return combined;
         }
-        private static bool IsPropArray(string propName)
+        private static void UpdateArray(JsonProperty prop,ref List<UpdateDefinition<collectionType>> updateDef, ref UpdateDefinitionBuilder<collectionType> builder)
+        {
+            prop.Value.TryGetProperty(Consts.ARRAY_UPDATE_OPERATOR, out JsonElement opElement);
+            prop.Value.TryGetProperty(Consts.ARRAY_UPDATE_VALUE, out JsonElement valueElement);
+
+            Console.WriteLine(  opElement);
+            Console.WriteLine(  valueElement);
+            
+            string operation = opElement.GetString() ?? String.Empty;
+            Console.WriteLine(valueElement.GetRawText());
+
+            Object[]? pushItems = null;
+            pushItems = JsonSerializer.Deserialize<object[]>(valueElement.GetRawText());
+            
+            switch (operation.ToLower())
+            {
+                case Consts.ARRAY_PUSH_OPERATION:
+                    //List<Object>? pushItems = new List<object[]>();
+                    try
+                    {
+                        ConvertArrayType(prop, pushItems,ref updateDef,ref builder);
+                        //updateDef.Add( builder.PushEach(prop.Name, test));
+                    }catch(Exception e) { }
+                    break;
+
+            }
+        }
+        private static IEnumerable<object> ConvertArrayType(JsonProperty prop,Object[]? pushItems, ref List<UpdateDefinition<collectionType>> updateDef, ref UpdateDefinitionBuilder<collectionType> builder)
+        {
+             if(pushItems == null || pushItems.Length == 0)
+                return Array.Empty<object>();
+
+             object? arrayType = null;
+            foreach ((string bsonName,PropertyInfo bsonType) modelProp in _bsonNameCache[nameof(collectionType)])
+                if(modelProp.bsonName == prop.Name)
+                    arrayType = modelProp.bsonType.PropertyType.GetElementType();
+            Console.WriteLine(arrayType == string s);
+            switch (arrayType)
+            {
+                case string s:
+                    Console.WriteLine(  "hjjjjjjjjj");
+                    string[] ret = new string[pushItems.Length];
+                    Console.WriteLine(pushItems[0].ToString());
+                    for(int i = 0; i < pushItems.Length; i++)
+                        ret[i] = pushItems[i].ToString() ?? String.Empty;
+                    Console.WriteLine(ret.First());
+                    updateDef.Add(builder.PushEach(prop.Name, (string[])ret));
+                    break;
+
+                case int i:
+                    break;  
+                    
+                case double d:
+                    break;
+
+                case null:
+                    break;
+            }
+
+            return pushItems.OfType<object>();
+        }
+        private static bool IsPropArray(JsonProperty prop)
         {
             if (!_bsonNameCache.ContainsKey(nameof(collectionType)))
                 InitializeBsonNameCache();
+
             foreach((string bsonName, PropertyInfo bsonType) in _bsonNameCache[nameof(collectionType)])
-                if (bsonName == propName)
+                if (bsonName == prop.Name )
                     return bsonType.PropertyType.IsArray || (bsonType.PropertyType.IsGenericType && bsonType.PropertyType.GetGenericTypeDefinition() == typeof(List<>));
+
             return false;
         }
         private static bool DocumentHasProperty(JsonProperty prop)
         {
             if (!_bsonNameCache.ContainsKey(nameof(collectionType)))
                 InitializeBsonNameCache();
+
             foreach((string bsonName, PropertyInfo bsonType) in _bsonNameCache[nameof(collectionType)])
             {
                 Object? convertedProp = ConvertJsonType(prop.Value);
-                if (convertedProp != null && bsonName == prop.Name && bsonType.PropertyType == convertedProp.GetType())
-                    return true;
+                if(convertedProp != null && bsonName == prop.Name)
+                    // make sure types are compatible but ignore arrays since they are handled differently
+                    if (bsonType.PropertyType.IsArray || bsonType.PropertyType == convertedProp.GetType())
+                        return true;
             }
             return false;
         }
@@ -109,8 +177,9 @@ namespace MongoConnection.Collections
                     value = prop.GetBoolean();
                     break;
 
+                case JsonValueKind.Object:// handled seperately, type dosent matter just not null
                 case JsonValueKind.Array:
-                    value = JsonSerializer.Deserialize<List<object>>(prop.GetRawText());
+                    value = true;
                     break;
 
                 case JsonValueKind.Null:
