@@ -4,12 +4,8 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoConnection.Collections.UserModel
 {
-    public class User
+    public class User : BaseCollection
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; } = null!;
-
         [BsonElement("personalNumber")]
         public int PersonalNumber { get; set; }
 

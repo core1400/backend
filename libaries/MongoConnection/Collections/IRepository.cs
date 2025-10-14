@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace MongoConnection
+namespace MongoConnection.Collections
 {
     internal interface IRepository<T>
     {

@@ -2,11 +2,10 @@
 
 namespace MongoConnection.Collections.UserModel
 {
-    internal interface IUserRepository : IRepository<User>
+    internal interface IUserRepo : IRepository<User>
     {
         Task<User?> GetByPNumAsync(int personalNubmer); 
         Task DeleteByPNumAsync(int personalNubmer);
         Task UpdateByPNumAsync(int personalNumber, JsonElement updateElements);
-
     }
 }
