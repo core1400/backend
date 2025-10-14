@@ -24,7 +24,11 @@ namespace MongoConnection.Collections.UserModel
         public async Task UpdateByPNumAsync(int personalNumber, JsonElement updateElements)
         {
             UpdateDefinition<User> combined = GlobalTools<User>.GenericUpdate(updateElements);
-            await _userCollection.UpdateOneAsync(user => user.PersonalNumber == personalNumber, combined);
+            try
+            {
+                await _userCollection.UpdateOneAsync(user => user.PersonalNumber == personalNumber, combined);
+            }
+            catch (Exception e) { }
         }
     }
 }

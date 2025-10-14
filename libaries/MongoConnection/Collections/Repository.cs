@@ -33,7 +33,11 @@ namespace MongoConnection.Collections
         public async Task UpdateAsync(string id, JsonElement updateElements)
         {
             UpdateDefinition<collectionType> combined = GlobalTools<collectionType>.GenericUpdate(updateElements);
-            await _collection.UpdateOneAsync(entity => entity.Id == id, combined);
+            try
+            {
+                await _collection.UpdateOneAsync(entity => entity.Id == id, combined);
+            }
+            catch (Exception e) { }
         }
     }
 }
