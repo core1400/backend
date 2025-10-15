@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using MongoConnection.Enums;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoConnection.Collections.Exam
@@ -9,7 +10,7 @@ namespace MongoConnection.Collections.Exam
         public string Name { get; set; } = null!;
 
         [BsonElement("type")]
-        public string Type { get; set; } = null!;
+        public ExamType Type { get; set; }
 
         [BsonElement("minGrade")]
         public string MinGrade { get; set; } = null!;

@@ -19,5 +19,8 @@ namespace MongoConnection.Collections.CalendarItem
 
         [BsonElement("description")]
         public string Description { get; set; } = null!;
+
+        [BsonElement("backColor")]
+        public string BackColor { get; set; } = null!;
     }
 }

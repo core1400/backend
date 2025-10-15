@@ -13,7 +13,7 @@ namespace MongoConnection.Collections.Course
         public string[] Commanders { get; set; } = null!; // list of all commander ids
 
         [BsonElement("courseNumber")]
-        public int CourseNumber { get; set; }
+        public string CourseNumber { get; set; } = null!;
 
         [BsonElement("name")]
         public string Name { get; set; } = null!;
@@ -29,5 +29,8 @@ namespace MongoConnection.Collections.Course
 
         [BsonElement("hantarId")]
         public string? HantarId { get; set; }
+
+        [BsonElement("exams")]
+        public string[]? Exams { get; set; }
     }
 }

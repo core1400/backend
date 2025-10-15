@@ -6,12 +6,13 @@ namespace MongoConnection.Collections
     public class Repository<collectionType> : IRepository<collectionType> where collectionType : BaseCollection
     {
         public IMongoCollection<collectionType> _collection;
-        public Repository(MongoContext mongoContext)
+        public Repository(MongoContext mongoContext,string dataBaseName)
         {
-            _collection = mongoContext.GetCollection<collectionType>(Consts.USER_DATABASE_NAME);
+            _collection = mongoContext.GetCollection<collectionType>(dataBaseName);
         }
         public async Task CreateAsync(collectionType entity)
         {
+            Console.WriteLine( "inserting");
             await _collection.InsertOneAsync(entity);
         }
 
