@@ -15,8 +15,6 @@ namespace MongoConnection.Collections
 
             foreach (JsonProperty prop in updateElements.EnumerateObject())
             {
-                Console.WriteLine(  prop.Name);
-                Console.WriteLine(DocumentHasProperty(prop));
                 if (DocumentHasProperty(prop))
                 {
                     if (IsPropArray(prop))
@@ -40,34 +38,35 @@ namespace MongoConnection.Collections
             prop.Value.TryGetProperty(Consts.ARRAY_UPDATE_OPERATOR, out JsonElement opElement);
             prop.Value.TryGetProperty(Consts.ARRAY_UPDATE_VALUE, out JsonElement valueElement);
 
-            Console.WriteLine(  opElement);
-            Console.WriteLine(  valueElement);
-            
             string operation = opElement.GetString() ?? String.Empty;
-            Console.WriteLine(valueElement.GetRawText());
-
             Object[]? pushItems = null;
             pushItems = JsonSerializer.Deserialize<object[]>(valueElement.GetRawText());
             
             switch (operation.ToLower())
             {
                 case Consts.ARRAY_PUSH_OPERATION:
-                    //List<Object>? pushItems = new List<object[]>();
                     try
                     {
-                        ConvertArrayType(prop, pushItems,ref updateDef,ref builder);
-                        //updateDef.Add( builder.PushEach(prop.Name, test));
+                        IEnumerable<object> convertedArray = ConvertArrayType(prop, pushItems, ref updateDef, ref builder).Cast<object>();
+                        updateDef.Add(builder.PushEach(prop.Name, convertedArray));
                     }catch(Exception e) { }
                     break;
-
+                case Consts.ARRAY_SET_OPERATION:
+                    try
+                    {
+                        IEnumerable<object> convertedArray = ConvertArrayType(prop, pushItems, ref updateDef, ref builder).Cast<object>();
+                        updateDef.Add(builder.Set(prop.Name, convertedArray));
+                    }
+                    catch (Exception e) { }
+                    break;
             }
         }
-        private static IEnumerable<object> ConvertArrayType(JsonProperty prop,Object[]? pushItems, ref List<UpdateDefinition<collectionType>> updateDef, ref UpdateDefinitionBuilder<collectionType> builder)
+        private static Array ConvertArrayType(JsonProperty prop,Object[]? pushItems, ref List<UpdateDefinition<collectionType>> updateDef, ref UpdateDefinitionBuilder<collectionType> builder)
         {
              if(pushItems == null || pushItems.Length == 0)
                 return Array.Empty<object>();
 
-             object? arrayType = null;
+            object? arrayType = null;
             foreach ((string bsonName,PropertyInfo bsonType) modelProp in _bsonNameCache[nameof(collectionType)])
                 if(modelProp.bsonName == prop.Name)
                     arrayType = modelProp.bsonType.PropertyType.GetElementType();
@@ -75,23 +74,27 @@ namespace MongoConnection.Collections
             switch (arrayType)
             {
                 case Type t when t == typeof(string):
-                    string[] ret = new string[pushItems.Length];
+                    string[] retString = new string[pushItems.Length];
                     for(int i = 0; i < pushItems.Length; i++)
-                        ret[i] = pushItems[i].ToString() ?? String.Empty;
-                    updateDef.Add(builder.PushEach(prop.Name, (string[])ret));
-                    break;
+                        retString[i] = pushItems[i].ToString() ?? String.Empty;
+                    return retString;
 
-                case int i:
-                    break;  
+                case Type t when t == typeof(int):
+                    int[] retInt = new int[pushItems.Length];
+                    for (int i = 0; i < pushItems.Length; i++)
+                        retInt[i] = Int32.Parse(pushItems[i].ToString() ?? "0");
+                    return retInt;
                     
-                case double d:
-                    break;
-
+                case Type t when t == typeof(double):
+                    double[] retDouble = new double[pushItems.Length];
+                    for (int i = 0; i < pushItems.Length; i++)
+                        retDouble[i] = Double.Parse(pushItems[i].ToString() ?? "0");
+                    return retDouble;
                 case null:
                     break;
             }
 
-            return pushItems.OfType<object>();
+            return (Array)pushItems.OfType<object>();
         }
         private static bool IsPropArray(JsonProperty prop)
         {
@@ -112,6 +115,8 @@ namespace MongoConnection.Collections
             foreach((string bsonName, PropertyInfo bsonType) in _bsonNameCache[nameof(collectionType)])
             {
                 Object? convertedProp = ConvertJsonType(prop.Value);
+                if (!IsPrimitive(bsonType.PropertyType))
+                    return true;
                 if(convertedProp != null && bsonName == prop.Name)
                     // make sure types are compatible but ignore arrays since they are handled differently
                     if (bsonType.PropertyType.IsArray || bsonType.PropertyType == convertedProp.GetType())
@@ -119,7 +124,22 @@ namespace MongoConnection.Collections
             }
             return false;
         }
+        private static bool IsPrimitive(Type type)
+        {
+            if (type.IsPrimitive)
+                return true;
 
+            if (type == typeof(string) ||
+                type == typeof(decimal) ||
+                type == typeof(DateTime) ||
+                type == typeof(Guid))
+                return true;
+
+            if (type.IsArray)
+                return IsPrimitive(type.GetElementType()!);
+
+            return false;
+        }
         private static void InitializeBsonNameCache()
         {
             //Binding flags used for discrepencys in c# vs mongo naming conventions
@@ -163,7 +183,7 @@ namespace MongoConnection.Collections
                     break;
 
                 case JsonValueKind.Number:
-                    if (prop.TryGetInt32(out var intValue))
+                    if (prop.TryGetInt32(out int intValue))
                         value = intValue;
                     else if (prop.TryGetDouble(out var doubleValue))
                         value = doubleValue;
