@@ -7,6 +7,6 @@ namespace CoreBackend.Features.Grades.ROs
             public required string studentName { get; set; }
             public required int grade;
         }
-        public required List<Dictionary<string, GradeModel>> grades;
+        public required List<Dictionary<string, GradeForExamModel>> grades;
     }
 }

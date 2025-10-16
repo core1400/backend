@@ -17,6 +17,7 @@ namespace CoreBackend.Features.Auth
         public ActionResult TryAuthenticate([FromBody] UserCredentialsDTO userCredentialsDTO)
         {
             // Code Here
+            throw new NotImplementedException();
         }
     }
 }

@@ -17,12 +17,14 @@ namespace CoreBackend.Features.Misbehaviors
         public ActionResult IncreaseMisbehaviorForUser(int userID, IncreaseMisbehaviorDTO increaseMisbehaviorDTO)
         {
             // Code Here
+            throw new NotImplementedException();
         }
 
         [HttpDelete("~/users/{userID}/misbehavior")]
         public ActionResult DecreaseMisbehaviorForUser(int userID, [FromQuery] DecreaseMisbehaviorDTO decreaseAmount)
         {
             // Code Here
+            throw new NotImplementedException();
         }
     }
 }

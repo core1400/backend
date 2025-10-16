@@ -18,42 +18,49 @@ namespace CoreBackend.Features.Exams
         public ActionResult<CreateExamRO> AddExamForCourse([FromBody] CreateExamDTO createExamDTO)
         {
             // Code Here
+            throw new NotImplementedException();
         }
 
         [HttpGet("~/courses/{courseID}/exams")]
         public ActionResult<List<GetExamRO>> GetAllExamsForCourse(string courseID)
         {
             // Code Here
+            throw new NotImplementedException();
         }
 
         [HttpGet]
         public ActionResult<List<GetExamRO>> GetAllExams([FromQuery] GetAllExamsFilter getAllExamsFilter)
         {
             // Code Here
+            throw new NotImplementedException();
         }
 
         [HttpPost]
         public ActionResult CreateNewExam()
         {
             // Code Here
+            throw new NotImplementedException();
         }
 
         [HttpPatch]
         public ActionResult UpdateExam()
         {
             // Code Here
+            throw new NotImplementedException();
         }
 
         [HttpGet("~/courses/{courseID}/exams")]
         public ActionResult GetSpecificExam()
         {
             // Code Here
+            throw new NotImplementedException();
         }
 
         [HttpPatch("~/courses/{courseID}/exams")]
         public ActionResult UpdateSpecificExam()
         {
             // Code Here
+            throw new NotImplementedException();
         }
         
     }
