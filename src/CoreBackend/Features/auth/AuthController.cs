@@ -1,5 +1,8 @@
 using CoreBackend.Features.Auth.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using MongoConnection;
+using MongoConnection.Collections.UserModel;
+using MongoConnection.Enums;
 
 namespace CoreBackend.Features.Auth
 {
@@ -7,16 +10,15 @@ namespace CoreBackend.Features.Auth
     [Route("auth")]
     public class AuthController : ControllerBase
     {
-
-        public AuthController()
+        private UserRepo _userRepo;
+        public AuthController(MongoContext mongoContext)
         {
-            // Dependences Here
+            _userRepo = new UserRepo(mongoContext);
         }
 
         [HttpPost("sign-in")]
-        public ActionResult TryAuthenticate([FromBody] UserCredentialsDTO userCredentialsDTO)
+        public async Task<ActionResult> TryAuthenticate([FromBody] UserCredentialsDTO userCredentialsDTO)
         {
-            // Code Here
             throw new NotImplementedException();
         }
     }
