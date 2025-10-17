@@ -1,0 +1,16 @@
+﻿using CoreBackend.Features.Users.DTOs;
+using CoreBackend.Features.Users.ROs;
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+
+namespace CoreBackend.Features.users
+{
+    public interface IUserService
+    {
+        public Task<ActionResult<CreateUserRO>> CreateUser(CreateUserDTO createUserDTO);
+        public Task<ActionResult<List<GetUser>>> GetSeveralUsers(UsersFilterDTO usersFilter);
+        public Task<ActionResult<GetUser>> GetSpecificUser(string userID);
+        public Task<ActionResult> UpdateSpecificUser(string userID, JsonElement updateElement);
+        public Task<ActionResult> RemoveSpecificUser(string userID);
+    }
+}

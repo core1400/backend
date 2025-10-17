@@ -7,7 +7,7 @@ namespace MongoConnection.Collections.UserModel
     public class User : BaseCollection
     {
         [BsonElement("personalNumber")]
-        public int PersonalNumber { get; set; }
+        public string PersonalNumber { get; set; }
 
         [BsonElement("firstName")]
         public string FirstName { get; set; } = null!;
@@ -16,7 +16,7 @@ namespace MongoConnection.Collections.UserModel
         public string LastName { get; set; } = null!;
 
         [BsonElement("birthDate")]
-        public DateTime BirthDate { get; set; }
+        public DateOnly BirthDate { get; set; }
 
         [BsonElement("testScores")]
         public Dictionary<string, int>? TestScores { get; set; } // Key: Test name, Value: Score
@@ -28,7 +28,7 @@ namespace MongoConnection.Collections.UserModel
         public int? MisbehaviorCount { get; set; }
 
         [BsonElement("courseNumber")]
-        public int? CourseNumber { get; set; }
+        public string? CourseNumber { get; set; }
 
         [BsonElement("role")]
         public UserRole Role { get; set; } // ADMIN, STUDENT, MAMAK, COMMANDER
