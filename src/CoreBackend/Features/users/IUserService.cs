@@ -8,7 +8,7 @@ namespace CoreBackend.Features.users
 {
     public interface IUserService
     {
-        public Task<ActionResult<CreateUserRO>> CreateUser(CreateUserDTO createUserDTO);
+        public Task<ActionResult<CreateUserRO>> CreateUser(CreateUserDTO createUserDTO,UserRole role);
         public Task<ActionResult<List<GetUser>>> GetSeveralUsers(UsersFilterDTO usersFilter);
         public Task<ActionResult<GetUser>> GetSpecificUser(string userID);
         public Task<ActionResult> UpdateSpecificUser(string userID, JsonElement updateElement, UserRole role);

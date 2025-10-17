@@ -5,6 +5,7 @@ using MongoConnection;
 using MongoConnection.Collections.UserModel;
 using MongoConnection.Enums;
 using MongoDB.Driver;
+using System.Data;
 using System.Text.Json;
 
 namespace CoreBackend.Features.users
@@ -16,9 +17,12 @@ namespace CoreBackend.Features.users
         {
             _userRepo = new UserRepo(mongoContext);
         }
-        public async Task<ActionResult<CreateUserRO>> CreateUser(CreateUserDTO createUserDTO)
+        public async Task<ActionResult<CreateUserRO>> CreateUser(CreateUserDTO createUserDTO,UserRole role)
         {
-            User? isUserExist =  await _userRepo.GetByPNumAsync(createUserDTO.personalNum);
+            if (role < createUserDTO.role)
+                return new ForbidResult();
+            
+                User? isUserExist =  await _userRepo.GetByPNumAsync(createUserDTO.personalNum);
             if (isUserExist == null)
             {
                 User newUser = new User
@@ -35,9 +39,12 @@ namespace CoreBackend.Features.users
                     Role = UserRole.Student,
                     IsFirstConnection = true
                 };
+                
                 await _userRepo.CreateAsync(newUser);
+                return new CreateUserRO() { user = newUser };
             }
-            return new CreateUserRO();
+            Console.WriteLine(  "created user");
+            return new CreateUserRO() {  };
         }
 
         public async Task<ActionResult<List<GetUser>>> GetSeveralUsers(UsersFilterDTO usersFilter)
@@ -78,7 +85,7 @@ namespace CoreBackend.Features.users
             UserRole toEditRole = user.Role;
             if (role > toEditRole)
                 await _userRepo.DeleteByIdAsync(userID);
-            return new NoContentResult();
+            return new ForbidResult();
         }
 
         public async Task<ActionResult> UpdateSpecificUser(string userID, JsonElement updateElements,UserRole role)
@@ -89,7 +96,7 @@ namespace CoreBackend.Features.users
             UserRole toEditRole = user.Role;
             if(role > toEditRole)
                 await _userRepo.UpdateAsync(userID, updateElements);
-            return new NoContentResult();
+            return new ForbidResult();
         }
     }
 }

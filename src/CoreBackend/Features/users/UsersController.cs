@@ -21,9 +21,13 @@ namespace CoreBackend.Features.Users
         }
 
         [HttpPost]
+        [RequireRole(UserRole.Admin, UserRole.Commander, UserRole.Mamak)]
         public async Task<ActionResult<CreateUserRO>> CreateUser([FromBody] CreateUserDTO createUserDTO)
         {
-            return await _userService.CreateUser(createUserDTO);
+            UserRole? role = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] as UserRole?;
+            if (role == null)
+                return Forbid();
+            return await _userService.CreateUser(createUserDTO,role??UserRole.Student);
         }
 
         [HttpGet]
