@@ -1,5 +1,4 @@
-﻿using CoreBackend.Features.auth;
-using CoreBackend.Features.Users.DTOs;
+﻿using CoreBackend.Features.Users.DTOs;
 using CoreBackend.Features.Users.ROs;
 using Microsoft.AspNetCore.Mvc;
 using MongoConnection;
@@ -13,7 +12,7 @@ namespace CoreBackend.Features.users
     public class UserService : IUserService
     {
         private UserRepo _userRepo;
-        public UserService(MongoContext mongoContext, AuthFilter authFilter)
+        public UserService(MongoContext mongoContext)
         {
             _userRepo = new UserRepo(mongoContext);
         }
@@ -25,6 +24,7 @@ namespace CoreBackend.Features.users
                 User newUser = new User
                 {
                     PersonalNumber = createUserDTO.personalNum,
+                    Password = createUserDTO.Password,
                     FirstName = createUserDTO.firstName,
                     LastName = createUserDTO.lastName,
                     BirthDate = createUserDTO.birthDate,
@@ -70,15 +70,25 @@ namespace CoreBackend.Features.users
             return getUser;
         }
 
-        public async Task<ActionResult> RemoveSpecificUser(string userID)
+        public async Task<ActionResult> RemoveSpecificUser(string userID,UserRole role)
         {
-            await _userRepo.DeleteByIdAsync(userID);
+            User? user = await _userRepo.GetByIdAsync(userID);
+            if (user == null)
+                return new NotFoundResult();
+            UserRole toEditRole = user.Role;
+            if (role > toEditRole)
+                await _userRepo.DeleteByIdAsync(userID);
             return new NoContentResult();
         }
 
-        public async Task<ActionResult> UpdateSpecificUser(string userID, JsonElement updateElements)
+        public async Task<ActionResult> UpdateSpecificUser(string userID, JsonElement updateElements,UserRole role)
         {
-            await _userRepo.UpdateAsync(userID, updateElements);
+            User? user = await _userRepo.GetByIdAsync(userID);
+            if(user == null)
+                return new NotFoundResult();
+            UserRole toEditRole = user.Role;
+            if(role > toEditRole)
+                await _userRepo.UpdateAsync(userID, updateElements);
             return new NoContentResult();
         }
     }

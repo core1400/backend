@@ -12,6 +12,9 @@ namespace MongoConnection.Collections.UserModel
         [BsonElement("firstName")]
         public string FirstName { get; set; } = null!;
 
+        [BsonElement("password")]
+        public string Password { get; set; } = null!;
+
         [BsonElement("lastName")]
         public string LastName { get; set; } = null!;
 
