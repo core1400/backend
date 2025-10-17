@@ -55,7 +55,7 @@ namespace CoreBackend.Features.Users
         [RequireRole(UserRole.Admin,UserRole.Commander,UserRole.Mamak)]
         public async Task<ActionResult> RemoveSpecificUser(string userID)
         {
-            UserRole? role = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] as UserRole?;
+            UserRole? role = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] as UserRole?; 
             if(role == null)
                 return Forbid();
             
