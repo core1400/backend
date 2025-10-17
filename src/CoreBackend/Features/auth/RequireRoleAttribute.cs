@@ -20,14 +20,19 @@ public class RequireRoleAttribute : Attribute, IAuthorizationFilter
             .FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
         if (roleClaim == null || !Enum.TryParse<UserRole>(roleClaim, out var userRole))
         {
-            context.Result = new ForbidResult();
+            context.Result = new JsonResult(new { message = "Missing or invalid token" })
+            {
+                StatusCode = StatusCodes.Status401Unauthorized
+            };
             return;
         }
 
         if (!_roles.Contains(userRole))
         {
-            context.Result = new ForbidResult();
-            return;
+            context.Result = new JsonResult(new { message = "Invalid role" })
+            {
+                StatusCode = StatusCodes.Status401Unauthorized
+            }; return;
         }
         context.HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] = userRole;
     }

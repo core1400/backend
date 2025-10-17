@@ -22,9 +22,10 @@ namespace CoreBackend.Features.Auth
         public async Task<ActionResult> TryAuthenticate([FromBody] UserCredentialsDTO userCredentialsDTO)
         {
             var user = await _userRepo.GetByPNumAsync(userCredentialsDTO.personalNumber);
+
             if (user == null)
                 return Unauthorized();
-
+            
             if (user.Password != userCredentialsDTO.password)
                 return Unauthorized();
 

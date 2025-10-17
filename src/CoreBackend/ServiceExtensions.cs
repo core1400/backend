@@ -17,8 +17,8 @@ namespace CoreBackend
             UserRepo userRepo = new UserRepo(mongoContext);
 
             User admin = new User();
-            admin.PersonalNumber = "admin"; 
-            admin.Password = "admin";
+            admin.PersonalNumber = "string"; 
+            admin.Password = "string";
             admin.FirstName = "admin";
             admin.LastName = "admin";
             admin.AverageScore = 0;
@@ -32,7 +32,7 @@ namespace CoreBackend
             services.AddSingleton(mongoContext);
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<JwtService>();
-            User? adminUser = await userRepo.GetByPNumAsync("admin");
+            User? adminUser = await userRepo.GetByPNumAsync("string");
             
             if (adminUser == null)
                 await userRepo.CreateAsync(admin);
