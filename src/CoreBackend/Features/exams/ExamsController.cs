@@ -49,7 +49,7 @@ namespace CoreBackend.Features.Exams
             throw new NotImplementedException();
         }
 
-        [HttpGet("~/courses/{courseID}/exams")]
+        [HttpGet("~/courses/{examId}")]
         public ActionResult GetSpecificExam()
         {
             // Code Here
