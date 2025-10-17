@@ -2,6 +2,7 @@
 using CoreBackend.Features.Users.ROs;
 using Microsoft.AspNetCore.Mvc;
 using MongoConnection;
+using MongoConnection.Collections.Course;
 using MongoConnection.Collections.UserModel;
 using MongoConnection.Enums;
 using MongoDB.Driver;
@@ -13,9 +14,11 @@ namespace CoreBackend.Features.users
     public class UserService : IUserService
     {
         private UserRepo _userRepo;
+        private CourseRepo _courseRepo;
         public UserService(MongoContext mongoContext)
         {
             _userRepo = new UserRepo(mongoContext);
+            _courseRepo = new CourseRepo(mongoContext);
         }
         public async Task<ActionResult<CreateUserRO>> CreateUser(CreateUserDTO createUserDTO,UserRole role)
         {
@@ -43,23 +46,51 @@ namespace CoreBackend.Features.users
                 await _userRepo.CreateAsync(newUser);
                 return new CreateUserRO() { user = newUser };
             }
-            Console.WriteLine(  "created user");
             return new CreateUserRO() {  };
         }
 
         public async Task<ActionResult<List<GetUser>>> GetSeveralUsers(UsersFilterDTO usersFilter)
         {
-            FilterDefinitionBuilder<User> builder = Builders<User>.Filter;
-            List<FilterDefinition<User>> filters = new List<FilterDefinition<User>>();
-
-            if(usersFilter.course != null)
-                filters.Add(builder.Eq(user => user.CourseNumber, usersFilter.course));
-            //if(usersFilter.commander!= null)
-                //filters.Add(builder.Eq(user => user.com, usersFilter.commander));
-
-            var finalFilters = filters.Any()?builder.And(filters):builder.Empty;
-
-            List<User> users =  (await _userRepo.GetByFilterAsync(finalFilters)).ToList();
+            List<User> users = new List<User>();
+            if (usersFilter.course!=null)
+            {
+                var filter = Builders<User>.Filter.Eq(user=>user.CourseNumber,usersFilter.course);
+                users =  (await _userRepo.GetByFilterAsync(filter)).ToList();
+            }
+            if(usersFilter.commander !=null)
+            {
+                List<Course> allCourses = new List<Course>();
+                allCourses = (await _courseRepo.GetAllAsync()).ToList();
+                foreach(var course in allCourses)
+                {
+                    if(course.Commanders.Contains(usersFilter.commander))
+                    {
+                        foreach(var userID in course.Students)
+                        {
+                            User? user = await _userRepo.GetByIdAsync(userID);
+                            if(user != null && !users.Any(u=>u.Id == user.Id))
+                                users.Add(user);
+                        }
+                    }
+                }
+            }
+            if (usersFilter.mamak != null)
+            {
+                List<Course> allCourses = new List<Course>();
+                allCourses = (await _courseRepo.GetAllAsync()).ToList();
+                foreach (var course in allCourses)
+                {
+                    if (course.MamakId == usersFilter.mamak)
+                    {
+                        foreach (var userID in course.Students)
+                        {
+                            User? user = await _userRepo.GetByIdAsync(userID);
+                            if (user != null && !users.Any(u => u.Id == user.Id))
+                                users.Add(user);
+                        }
+                    }
+                }
+            }
             List<GetUser> getUsers = new List<GetUser>();
             foreach( User user in users)
             {
