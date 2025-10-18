@@ -1,5 +1,6 @@
 using CoreBackend.Features.auth;
 using CoreBackend.Features.auth.DTOs;
+using CoreBackend.Features.auth.ROs;
 using CoreBackend.Features.Auth.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using MongoConnection;
@@ -23,7 +24,7 @@ namespace CoreBackend.Features.Auth
         }
 
         [HttpPost("sign-in")]
-        public async Task<ActionResult<bool>> TryAuthenticate([FromBody] UserCredentialsDTO userCredentialsDTO)
+        public async Task<ActionResult<ReturnSignIn>> TryAuthenticate([FromBody] UserCredentialsDTO userCredentialsDTO)
         {
             var user = await _userRepo.GetByPNumAsync(userCredentialsDTO.personalNumber);
 
@@ -32,9 +33,19 @@ namespace CoreBackend.Features.Auth
             
             if (user.Password != userCredentialsDTO.password)
                 return Unauthorized();
+            ReturnSignIn returnSignIn = new ReturnSignIn();
+            returnSignIn.user = user;
 
+            if (user.IsFirstConnection)
+            {
+                returnSignIn.token = "";
+                returnSignIn.isFirstConnection = user.IsFirstConnection;
+                return returnSignIn;
+            }
+            returnSignIn.isFirstConnection = user.IsFirstConnection;
             var token = _jwtService.GenerateToken(user.Id,user.Role.ToString());
-            return Ok(new { token,user.IsFirstConnection });
+            returnSignIn.token = token;
+            return returnSignIn;
         }
         [HttpPost("set-password")]
         [RequireRole(UserRole.Student,UserRole.Admin, UserRole.Mamak, UserRole.Commander)]
