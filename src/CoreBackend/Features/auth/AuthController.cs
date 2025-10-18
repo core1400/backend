@@ -23,7 +23,7 @@ namespace CoreBackend.Features.Auth
         }
 
         [HttpPost("sign-in")]
-        public async Task<ActionResult> TryAuthenticate([FromBody] UserCredentialsDTO userCredentialsDTO)
+        public async Task<ActionResult<bool>> TryAuthenticate([FromBody] UserCredentialsDTO userCredentialsDTO)
         {
             var user = await _userRepo.GetByPNumAsync(userCredentialsDTO.personalNumber);
 
@@ -34,7 +34,7 @@ namespace CoreBackend.Features.Auth
                 return Unauthorized();
 
             var token = _jwtService.GenerateToken(user.Id,user.Role.ToString());
-            return Ok(new { token });
+            return Ok(new { token,user.IsFirstConnection });
         }
         [HttpPost("set-password")]
         [RequireRole(UserRole.Student,UserRole.Admin, UserRole.Mamak, UserRole.Commander)]
