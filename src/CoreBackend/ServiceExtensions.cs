@@ -1,5 +1,7 @@
 ﻿using CoreBackend.Features.auth;
+using CoreBackend.Features.Courses;
 using CoreBackend.Features.files;
+using CoreBackend.Features.Misbehaviors;
 using CoreBackend.Features.users;
 using MongoConnection;
 using MongoConnection.Collections.UserModel;
@@ -33,6 +35,8 @@ namespace CoreBackend
             services.AddSingleton(mongoContext);
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IFileService, FileService>();
+            services.AddSingleton<ICourseService, CourseService>();
+            services.AddSingleton<IMisbehaviorService, MisbehaviorService>();
             services.AddSingleton<JwtService>();
             MongoConnection.Collections.UserModel.User? adminUser = await userRepo.GetByPNumAsync("string");
             

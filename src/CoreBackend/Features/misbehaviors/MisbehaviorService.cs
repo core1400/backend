@@ -31,14 +31,14 @@ namespace CoreBackend.Features.Misbehaviors
             return new GetUser { User = user };
         }
 
-        public async Task<ActionResult<GetUser>> DecreaseMisbehaviorForUser(string userID, DecreaseMisbehaviorDTO decreaseAmount)
+        public async Task<ActionResult<GetUser>> DecreaseMisbehaviorForUser(string userID, int decreaseMisbehavior)
         {
             User? user = await _userRepo.GetByIdAsync(userID);
             if (user == null)
                 return new NotFoundResult();
-
             int currentCount = user.MisbehaviorCount ?? 0;
-            int newCount = Math.Max(0, currentCount - decreaseAmount.decreaseAmount);
+
+            int newCount = Math.Max(0, currentCount - decreaseMisbehavior);
 
             JsonElement json = JsonSerializer.SerializeToElement(new { MisbehaviorCount = newCount });
             await _userRepo.UpdateByPNumAsync(user.PersonalNumber, json);

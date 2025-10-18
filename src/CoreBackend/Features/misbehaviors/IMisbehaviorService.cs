@@ -7,6 +7,6 @@ namespace CoreBackend.Features.Misbehaviors
     public interface IMisbehaviorService
     {
         Task<ActionResult<GetUser>> IncreaseMisbehaviorForUser(string userID, IncreaseMisbehaviorDTO dto);
-        Task<ActionResult<GetUser>> DecreaseMisbehaviorForUser(string userID, DecreaseMisbehaviorDTO dto);
+        Task<ActionResult<GetUser>> DecreaseMisbehaviorForUser(string userID, int decreaseMisbehavior);
     }
 }
