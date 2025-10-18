@@ -27,7 +27,6 @@ namespace CoreBackend.Features.Auth
         public async Task<ActionResult<ReturnSignIn>> TryAuthenticate([FromBody] UserCredentialsDTO userCredentialsDTO)
         {
             var user = await _userRepo.GetByPNumAsync(userCredentialsDTO.personalNumber);
-
             if (user == null)
                 return Unauthorized();
             
@@ -48,30 +47,28 @@ namespace CoreBackend.Features.Auth
             return returnSignIn;
         }
         [HttpPost("set-password")]
-        [RequireRole(UserRole.Student,UserRole.Admin, UserRole.Mamak, UserRole.Commander)]
 
         public async Task<ActionResult> SetPassword([FromBody] SetPasswordDTO setPasswordDTO)
         {
+            var user = await _userRepo.GetByPNumAsync(setPasswordDTO.personalNumber);
 
-            if (HttpContext.Items[Consts.HTTP_CONTEXT_USER_ID] == null)
-                return Forbid();
-            string userId = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ID].ToString();
-            var user = await _userRepo.GetByIdAsync(userId);
+            if(setPasswordDTO.password != user?.Password)
+                return Unauthorized();
 
             if (user == null)
                 return Unauthorized();
 
+            Console.WriteLine( "going to update ");
             if(user.IsFirstConnection)
                 {
-                user.IsFirstConnection = false;
-                user.Password = setPasswordDTO.password;
+                    
                 string json = $@"
                         {{
                             ""IsFirstConnection"": false,
-                            ""Password"": ""{setPasswordDTO.password}""
+                            ""Password"": ""{setPasswordDTO.newPassword}""
                         }}";
                 JsonElement updateElements = JsonDocument.Parse(json).RootElement;
-                await _userRepo.UpdateAsync(userId, updateElements);
+                await _userRepo.UpdateByPNumAsync(setPasswordDTO.personalNumber, updateElements);
             }
             return Ok(new { });
         }
