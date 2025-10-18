@@ -24,9 +24,19 @@ namespace CoreBackend.Features.Users
         }
 
         [HttpPost]
+        [RequireRole(UserRole.Admin, UserRole.Commander, UserRole.Mamak)]
         public async Task<ActionResult<CreateCalendarItemRO>> CreateCalendarItem(CreateCalendarItemDTO createCalendarItemDTO)
         {
+            UserRole? role = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] as UserRole?;
+            if (role == null)
+                return Forbid();
             return await _calendarItemsService.CreateCalendarItem(createCalendarItemDTO);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<GetCalendarItemRO>>> GetSeveralCalendarItems([FromQuery] CalendarItemsFilterDTO calendarItemsFilter)
+        {
+            return await _calendarItemsService.GetSeveralCalendarItems(calendarItemsFilter);
         }
 
         [HttpGet("{calendarItemID}")]
@@ -36,14 +46,23 @@ namespace CoreBackend.Features.Users
         }
 
         [HttpDelete("{calendarItemID}")]
+        [RequireRole(UserRole.Admin, UserRole.Commander, UserRole.Mamak)]
         public async Task<ActionResult> RemoveSpecificCalendarItem(string calendarItemID)
         {
+            UserRole? role = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] as UserRole?;
+            if (role == null)
+                return Forbid();
             return await _calendarItemsService.RemoveSpecificCalendarItem(calendarItemID);
         }
 
         [HttpPatch("{calendarItemID}")]
+        [Consumes("application/json")]
+        [RequireRole(UserRole.Admin, UserRole.Commander, UserRole.Mamak)]
         public async Task<ActionResult> UpdateSpecificCalendarItem(string calendarItemID, [FromBody] JsonElement updateElement)
         {
+            UserRole? role = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] as UserRole?;
+            if (role == null)
+                return Forbid();
             return await _calendarItemsService.UpdateSpecificCalendarItem(calendarItemID, updateElement);
         }
     }

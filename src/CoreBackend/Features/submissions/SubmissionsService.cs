@@ -18,6 +18,20 @@ namespace CoreBackend.Features.Submissions
             _requestRepo = new RequestRepo(mongoContext);
         }
 
+        
+
+        public async Task<ActionResult<List<GetSubmissionRO>>> GetSeveralSubmissions(SubmissionsFilterDTO submissionsFilter)
+        {
+            IEnumerable<Request> submissions = await _requestRepo.GetAllAsync();
+
+            var filteredItems = submissions.Where(submission =>
+                (submissionsFilter.personalNum == null || submissionsFilter.personalNum == submission.PersonalNum) &&
+                (submissionsFilter.submissionType == null || submissionsFilter.submissionType == submission.RequestType) &&
+                (submissionsFilter.requiredApprovedBy == null || submission.RequiredApprovedBy.Contains(submissionsFilter.requiredApprovedBy)) &&
+                (submissionsFilter.approvedBy == null || submission.ApprovedBy.Contains(submissionsFilter.approvedBy))
+            ).Select(submission => new GetSubmissionRO { submission = submission }).ToList();
+            return filteredItems;
+        }
         public async Task<ActionResult<CreateSubmissionRO>> CreateSubmission(CreateSubmissionDTO createSubmissionDTO)
         {
             Request newSubmission = new Request

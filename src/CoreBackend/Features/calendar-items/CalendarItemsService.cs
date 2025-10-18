@@ -1,7 +1,6 @@
 using System.Text.Json;
 using CoreBackend.Features.CalendarItems.DTOs;
 using CoreBackend.Features.CalendarItems.ROs;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MongoConnection;
 using MongoConnection.Collections.CalendarItem;
@@ -19,14 +18,17 @@ namespace CoreBackend.Features.CalendarItems
 
         public async Task<ActionResult<List<GetCalendarItemRO>>> GetSeveralCalendarItems(CalendarItemsFilterDTO calendarItemsFilter)
         {
-            // IEnumerable<CalendarItem> calendarItems = await _calendarItemRepo.GetAllAsync();
-            // List<GetCalendarItemRO> calendarItemsList = new List<GetCalendarItemRO>();
-            // foreach (CalendarItem calItem in calendarItems)
-            // {
-            //     if (calendarItemsFilter.name is not null && calendarItemsFilter.name.Equals(calItem.Name))
+            IEnumerable<CalendarItem> calendarItems = await _calendarItemRepo.GetAllAsync();
 
-            // }
-            return new OkResult();
+            var filteredItems = calendarItems.Where(calendarItem =>
+                (calendarItemsFilter.personalNum == null || calendarItemsFilter.personalNum == calendarItem.PersonalNum) &&
+                (calendarItemsFilter.name == null || calendarItemsFilter.name == calendarItem.Name) &&
+                (calendarItemsFilter.startBefore == null || calendarItemsFilter.startBefore > calendarItem.StartAt) &&
+                (calendarItemsFilter.startAfter == null || calendarItemsFilter.startAfter < calendarItem.StartAt) &&
+                (calendarItemsFilter.endBefore == null || calendarItemsFilter.endBefore > calendarItem.EndAt) &&
+                (calendarItemsFilter.endAfter == null || calendarItemsFilter.endAfter < calendarItem.EndAt)
+            ).Select(calendarItem => new GetCalendarItemRO { calendarItem = calendarItem }).ToList();
+            return filteredItems;
         }
 
         public async Task<ActionResult<CreateCalendarItemRO>> CreateCalendarItem(CreateCalendarItemDTO createCalendarItemDTO)
