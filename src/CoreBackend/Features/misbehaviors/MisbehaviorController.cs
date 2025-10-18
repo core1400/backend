@@ -1,4 +1,5 @@
 using CoreBackend.Features.Misbehaviors.DTOs;
+using CoreBackend.Features.Users.ROs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoreBackend.Features.Misbehaviors
@@ -7,24 +8,23 @@ namespace CoreBackend.Features.Misbehaviors
     [Route("misbehavior")]
     public class MisbehaviorController : ControllerBase
     {
+        private readonly IMisbehaviorService _misbehaviorService;
 
-        public MisbehaviorController()
+        public MisbehaviorController(IMisbehaviorService misbehaviorService)
         {
-            // Dependences Here
+            _misbehaviorService = misbehaviorService;
         }
 
         [HttpPost("~/users/{userID}/misbehavior")]
-        public ActionResult IncreaseMisbehaviorForUser(int userID, IncreaseMisbehaviorDTO increaseMisbehaviorDTO)
+        public async Task<ActionResult<GetUser>> IncreaseMisbehaviorForUser(string userID, IncreaseMisbehaviorDTO increaseMisbehaviorDTO)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _misbehaviorService.IncreaseMisbehaviorForUser(userID, increaseMisbehaviorDTO);
         }
 
         [HttpDelete("~/users/{userID}/misbehavior")]
-        public ActionResult DecreaseMisbehaviorForUser(int userID, [FromQuery] DecreaseMisbehaviorDTO decreaseAmount)
+        public async Task<ActionResult<GetUser>> DecreaseMisbehaviorForUser(string userID, [FromQuery] DecreaseMisbehaviorDTO decreaseAmount)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _misbehaviorService.DecreaseMisbehaviorForUser(userID, decreaseAmount);
         }
     }
 }

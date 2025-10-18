@@ -1,6 +1,7 @@
 using CoreBackend.Features.Courses.DTOs;
 using CoreBackend.Features.Courses.ROs;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace CoreBackend.Features.Courses
 {
@@ -8,59 +9,53 @@ namespace CoreBackend.Features.Courses
     [Route("courses")]
     public class CoursesController : ControllerBase
     {
+        private readonly ICourseService _courseService;
 
-        public CoursesController()
+        public CoursesController(ICourseService courseService)
         {
-            // Dependences Here
+            _courseService = courseService;
         }
 
         [HttpPost]
-        public ActionResult<CreateCourseRO> CreateCourse([FromBody] CreateCourseDTO createCourseDTO)
+        public async Task<ActionResult<CreateCourseRO>> CreateCourse([FromBody] CreateCourseDTO dto)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _courseService.CreateCourse(dto);
         }
 
         [HttpGet]
-        public ActionResult<List<GetCourseRO>> GetSeveralCourses([FromQuery] CoursesFilterDTO coursesFilter)
+        public async Task<ActionResult<List<GetCourseRO>>> GetSeveralCourses([FromQuery] CoursesFilterDTO filter)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _courseService.GetSeveralCourses(filter);
         }
 
         [HttpGet("{courseID}")]
-        public ActionResult<GetCourseRO> GetSpecificCourse(string courseID)
+        public async Task<ActionResult<GetCourseRO>> GetSpecificCourse(string courseID)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _courseService.GetSpecificCourse(courseID);
         }
 
         [HttpPatch("{courseID}")]
-        public ActionResult UpdateSpecificCourse(string courseID)
+        public async Task<ActionResult> UpdateSpecificCourse(string courseID, [FromBody] JsonElement updateElements)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _courseService.UpdateSpecificCourse(courseID, updateElements);
         }
 
         [HttpDelete("{courseID}")]
-        public ActionResult RemoveSpecificCourse([FromBody] string courseID)
+        public async Task<ActionResult> RemoveSpecificCourse(string courseID)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _courseService.RemoveSpecificCourse(courseID);
         }
 
         [HttpPost("{courseID}/students")]
-        public ActionResult AddUserToCourse([FromBody] AddUserToCourseDTO addUserToCourseDTO)
+        public async Task<ActionResult> AddUserToCourse(string courseID, [FromBody] AddUserToCourseDTO dto)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _courseService.AddUserToCourse(courseID, dto);
         }
 
         [HttpDelete("{courseID}/students/{studentID}")]
-        public ActionResult RemoveUserFromCourse(string courseID, string studentID)
+        public async Task<ActionResult> RemoveUserFromCourse(string courseID, string userID)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _courseService.RemoveUserFromCourse(courseID, userID);
         }
     }
 }
