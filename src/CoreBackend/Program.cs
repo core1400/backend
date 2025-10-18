@@ -36,7 +36,18 @@ builder.Services.AddSwaggerGen(c=> {
 });
 
 builder.Services.AddSingleTones(builder.Configuration);
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyHeader()
+                   .AllowCredentials()
 
+                   .AllowAnyMethod();
+        });
+});
 var app = builder.Build();
 app.UseSwaggerUI(c =>
 {
