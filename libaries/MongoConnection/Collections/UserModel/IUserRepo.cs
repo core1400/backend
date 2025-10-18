@@ -4,8 +4,8 @@ namespace MongoConnection.Collections.UserModel
 {
     internal interface IUserRepo : IRepository<User>
     {
-        Task<User?> GetByPNumAsync(int personalNubmer); 
-        Task DeleteByPNumAsync(int personalNubmer);
-        Task UpdateByPNumAsync(int personalNumber, JsonElement updateElements);
+        Task<User?> GetByPNumAsync(string personalNubmer); 
+        Task DeleteByPNumAsync(string personalNubmer);
+        Task UpdateByPNumAsync(string personalNumber, JsonElement updateElements);
     }
 }

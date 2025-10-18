@@ -2,9 +2,9 @@
 {
     public enum UserRole
     {
-        Admin,
-        Student,
-        Mamak,
-        Commander
+        Admin = 4,
+        Student = 1,
+        Mamak = 3,
+        Commander = 2
     }
 }

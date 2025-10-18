@@ -9,17 +9,17 @@ namespace MongoConnection.Collections.UserModel
         {
         }
 
-        public async Task DeleteByPNumAsync(int personalNumber)
+        public async Task DeleteByPNumAsync(string personalNumber)
         {
             await _collection.DeleteOneAsync(user => user.PersonalNumber == personalNumber);
         }
 
-        public async Task<User?> GetByPNumAsync(int personalNumber)
+        public async Task<User?> GetByPNumAsync(string personalNumber)
         {
             return await _collection.Find(user => user.PersonalNumber == personalNumber).FirstOrDefaultAsync();
         }
 
-        public async Task UpdateByPNumAsync(int personalNumber, JsonElement updateElements)
+        public async Task UpdateByPNumAsync(string personalNumber, JsonElement updateElements)
         {
             UpdateDefinition<User> combined = GlobalTools<User>.GenericUpdate(updateElements);
             try

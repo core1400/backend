@@ -40,5 +40,9 @@ namespace MongoConnection.Collections
             }
             catch (Exception e) { }
         }
+        public async Task<List<collectionType>> GetByFilterAsync(FilterDefinition<collectionType> filter)
+        {
+            return await _collection.Find(filter).ToListAsync();
+        }
     }
 }

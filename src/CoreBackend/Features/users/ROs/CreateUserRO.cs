@@ -1,7 +1,9 @@
+using MongoConnection.Collections.UserModel;
+
 namespace CoreBackend.Features.Users.ROs
 {
     public class CreateUserRO
     {
-        // DB object here
+        public MongoConnection.Collections.UserModel.User user { get; set; }
     }
 }

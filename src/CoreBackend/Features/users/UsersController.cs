@@ -1,6 +1,11 @@
+using CoreBackend.Features.auth;
+using CoreBackend.Features.users;
 using CoreBackend.Features.Users.DTOs;
 using CoreBackend.Features.Users.ROs;
 using Microsoft.AspNetCore.Mvc;
+using MongoConnection.Enums;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace CoreBackend.Features.Users
 {
@@ -8,45 +13,57 @@ namespace CoreBackend.Features.Users
     [Route("users")]
     public class UsersController : ControllerBase
     {
+        private IUserService _userService;
 
-        public UsersController()
+        public UsersController(IUserService userService)
         {
-            // Dependences Here
+            _userService = userService;
         }
 
         [HttpPost]
-        public ActionResult<CreateUserRO> CreateUser([FromBody] CreateUserDTO createUserDTO)
+        [RequireRole(UserRole.Admin, UserRole.Commander, UserRole.Mamak)]
+        public async Task<ActionResult<CreateUserRO>> CreateUser([FromBody] CreateUserDTO createUserDTO)
         {
-            // Code Here
-            throw new NotImplementedException();
+            UserRole? role = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] as UserRole?;
+            if (role == null)
+                return Forbid();
+            return await _userService.CreateUser(createUserDTO,role??UserRole.Student);
         }
 
         [HttpGet]
-        public ActionResult<List<GetUser>> GetSeveralUsers([FromQuery] UsersFilterDTO usersFilter)
+        public async Task<ActionResult<List<GetUser>>> GetSeveralUsers([FromQuery] UsersFilterDTO usersFilter)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _userService.GetSeveralUsers(usersFilter);
         }
 
         [HttpGet("{userID}")]
-        public ActionResult<GetUser> GetSpecificUser(int userID)
+        public async Task<ActionResult<GetUser>> GetSpecificUser(string userID)
         {
-            // Code Here
-            throw new NotImplementedException();
+            return await _userService.GetSpecificUser(userID);
         }
 
         [HttpPatch("{userID}")]
-        public ActionResult UpdateSpecificUser(int userID, [FromBody] PatchUserDTO patchUserDTO)
+        [Consumes("application/json")]
+        [RequireRole(UserRole.Admin, UserRole.Commander, UserRole.Mamak)]
+
+        public async Task<ActionResult> UpdateSpecificUser(string userID, [FromBody] JsonElement updateElement)
         {
-            // Code Here
-            throw new NotImplementedException();
+            UserRole? role = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] as UserRole?;
+            if (role == null)
+                return Forbid();
+
+            return await _userService.UpdateSpecificUser(userID, updateElement,role??UserRole.Student);
         }
 
         [HttpDelete("{userID}")]
-        public ActionResult RemoveSpecificUser(int userID)
+        [RequireRole(UserRole.Admin,UserRole.Commander,UserRole.Mamak)]
+        public async Task<ActionResult> RemoveSpecificUser(string userID)
         {
-            // Code Here
-            throw new NotImplementedException();
+            UserRole? role = HttpContext.Items[Consts.HTTP_CONTEXT_USER_ROLE] as UserRole?; 
+            if(role == null)
+                return Forbid();
+            
+            return await _userService.RemoveSpecificUser(userID,role??UserRole.Student);
         }
     }
 }

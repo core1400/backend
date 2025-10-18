@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using MongoDB.Driver;
+using System.Text.Json;
 
 namespace MongoConnection.Collections
 {
@@ -9,5 +10,7 @@ namespace MongoConnection.Collections
         Task CreateAsync(T entity);
         Task UpdateAsync(string id, JsonElement updateElements);
         Task DeleteByIdAsync(string id);
+        public Task<List<T>> GetByFilterAsync(FilterDefinition<T> filter);
+
     }
 }
