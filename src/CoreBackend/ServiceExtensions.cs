@@ -1,4 +1,6 @@
 ﻿using CoreBackend.Features.auth;
+using CoreBackend.Features.CalendarItems;
+using CoreBackend.Features.Submissions;
 using CoreBackend.Features.users;
 using MongoConnection;
 using MongoConnection.Collections.UserModel;
@@ -32,6 +34,8 @@ namespace CoreBackend
             services.AddSingleton(mongoContext);
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<JwtService>();
+            services.AddSingleton<ISubmissionsService, SubmissionsService>();
+            services.AddSingleton<ICalendarItemsService, CalendarItemsService>();
             User? adminUser = await userRepo.GetByPNumAsync("string");
             
             if (adminUser == null)

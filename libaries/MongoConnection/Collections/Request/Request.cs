@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoConnection.Enums;
 
 namespace MongoConnection.Collections.Request
 {
@@ -9,7 +10,7 @@ namespace MongoConnection.Collections.Request
         public string PersonalNum { get; set; } = null!;
 
         [BsonElement("requestType")]
-        public string RequestType { get; set; } = null!;
+        public SubmissionType RequestType { get; set; }
 
         [BsonElement("description")]
         public string Description { get; set; } = null!;
