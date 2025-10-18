@@ -24,11 +24,11 @@ namespace CoreBackend.Features.users
         {
             if (role < createUserDTO.role)
                 return new ForbidResult();
-            
-                User? isUserExist =  await _userRepo.GetByPNumAsync(createUserDTO.personalNum);
+
+            MongoConnection.Collections.UserModel.User? isUserExist =  await _userRepo.GetByPNumAsync(createUserDTO.personalNum);
             if (isUserExist == null)
             {
-                User newUser = new User
+                MongoConnection.Collections.UserModel.User newUser = new MongoConnection.Collections.UserModel.User
                 {
                     PersonalNumber = createUserDTO.personalNum,
                     Password = createUserDTO.Password,
@@ -51,10 +51,10 @@ namespace CoreBackend.Features.users
 
         public async Task<ActionResult<List<GetUser>>> GetSeveralUsers(UsersFilterDTO usersFilter)
         {
-            List<User> users = new List<User>();
+            List<MongoConnection.Collections.UserModel.User> users = new List<MongoConnection.Collections.UserModel.User>();
             if (usersFilter.course!=null)
             {
-                var filter = Builders<User>.Filter.Eq(user=>user.CourseNumber,usersFilter.course);
+                var filter = Builders<MongoConnection.Collections.UserModel.User>.Filter.Eq<string>(user=> user.CourseNumber, usersFilter.course);
                 users =  (await _userRepo.GetByFilterAsync(filter)).ToList();
             }
             if(usersFilter.commander !=null)
@@ -67,7 +67,7 @@ namespace CoreBackend.Features.users
                     {
                         foreach(var userID in course.Students)
                         {
-                            User? user = await _userRepo.GetByIdAsync(userID);
+                            MongoConnection.Collections.UserModel.User? user = await _userRepo.GetByIdAsync(userID);
                             if(user != null && !users.Any(u=>u.Id == user.Id))
                                 users.Add(user);
                         }
@@ -84,7 +84,7 @@ namespace CoreBackend.Features.users
                     {
                         foreach (var userID in course.Students)
                         {
-                            User? user = await _userRepo.GetByIdAsync(userID);
+                            MongoConnection.Collections.UserModel.User? user = await _userRepo.GetByIdAsync(userID);
                             if (user != null && !users.Any(u => u.Id == user.Id))
                                 users.Add(user);
                         }
@@ -92,7 +92,7 @@ namespace CoreBackend.Features.users
                 }
             }
             List<GetUser> getUsers = new List<GetUser>();
-            foreach( User user in users)
+            foreach(MongoConnection.Collections.UserModel.User user in users)
             {
                 GetUser getUser = new GetUser();
                 getUser.User = user;
@@ -110,7 +110,7 @@ namespace CoreBackend.Features.users
 
         public async Task<ActionResult> RemoveSpecificUser(string userID,UserRole role)
         {
-            User? user = await _userRepo.GetByIdAsync(userID);
+            MongoConnection.Collections.UserModel.User? user = await _userRepo.GetByIdAsync(userID);
             if (user == null)
                 return new NotFoundResult();
             UserRole toEditRole = user.Role;
@@ -121,7 +121,7 @@ namespace CoreBackend.Features.users
 
         public async Task<ActionResult> UpdateSpecificUser(string userID, JsonElement updateElements,UserRole role)
         {
-            User? user = await _userRepo.GetByIdAsync(userID);
+            MongoConnection.Collections.UserModel.User? user = await _userRepo.GetByIdAsync(userID);
             if(user == null)
                 return new NotFoundResult();
             UserRole toEditRole = user.Role;

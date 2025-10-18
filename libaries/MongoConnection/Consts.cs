@@ -8,7 +8,8 @@
         public const string EXAM_DATABASE_NAME = "Exam";
         public const string CALENDAR_DATABASE_NAME = "CalendarItem";
         public const string REQUEST_DATABASE_NAME = "Request";
-        
+        public const string FILE_DATABASE_NAME = "File";
+
         public const string MONGO_DICTIONARY_SEPERATOR = ".";
         public const int EXTRA_DOT_LENGTH = 1;
         public const string ARRAY_UPDATE_OPERATOR = "op";

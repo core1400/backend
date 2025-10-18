@@ -4,6 +4,6 @@ namespace CoreBackend.Features.Users.ROs
 {
     public class GetUser
     {
-        public User? User { get; set; }
+        public MongoConnection.Collections.UserModel.User? User { get; set; }
     }
 }

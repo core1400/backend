@@ -1,4 +1,5 @@
 ﻿using CoreBackend.Features.auth;
+using CoreBackend.Features.files;
 using CoreBackend.Features.users;
 using MongoConnection;
 using MongoConnection.Collections.UserModel;
@@ -16,7 +17,7 @@ namespace CoreBackend
             
             UserRepo userRepo = new UserRepo(mongoContext);
 
-            User admin = new User();
+            MongoConnection.Collections.UserModel.User admin = new MongoConnection.Collections.UserModel.User();
             admin.PersonalNumber = "string"; 
             admin.Password = "string";
             admin.FirstName = "admin";
@@ -31,8 +32,9 @@ namespace CoreBackend
 
             services.AddSingleton(mongoContext);
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<JwtService>();
-            User? adminUser = await userRepo.GetByPNumAsync("string");
+            MongoConnection.Collections.UserModel.User? adminUser = await userRepo.GetByPNumAsync("string");
             
             if (adminUser == null)
                 await userRepo.CreateAsync(admin);
