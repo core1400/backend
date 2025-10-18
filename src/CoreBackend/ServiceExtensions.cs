@@ -1,4 +1,6 @@
-﻿using CoreBackend.Features.auth;
+using CoreBackend.Features.auth;
+using CoreBackend.Features.CalendarItems;
+using CoreBackend.Features.Submissions;
 using CoreBackend.Features.Courses;
 using CoreBackend.Features.files;
 using CoreBackend.Features.Misbehaviors;
@@ -38,7 +40,9 @@ namespace CoreBackend
             services.AddSingleton<ICourseService, CourseService>();
             services.AddSingleton<IMisbehaviorService, MisbehaviorService>();
             services.AddSingleton<JwtService>();
-            MongoConnection.Collections.UserModel.User? adminUser = await userRepo.GetByPNumAsync("string");
+            services.AddSingleton<ISubmissionsService, SubmissionsService>();
+            services.AddSingleton<ICalendarItemsService, CalendarItemsService>();
+            User? adminUser = await userRepo.GetByPNumAsync("string");
             
             if (adminUser == null)
                 await userRepo.CreateAsync(admin);
