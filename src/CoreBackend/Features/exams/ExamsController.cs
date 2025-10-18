@@ -6,10 +6,10 @@ namespace CoreBackend.Features.Exams
 {
     [ApiController]
     [Route("exams")]
-    public class GradesController : ControllerBase
+    public class ExamController : ControllerBase
     {
 
-        public GradesController()
+        public ExamController()
         {
             // Dependences Here
         }
@@ -49,7 +49,7 @@ namespace CoreBackend.Features.Exams
             throw new NotImplementedException();
         }
 
-        [HttpGet("~/courses/{examId}")]
+        [HttpGet("courses/{examId}")]
         public ActionResult GetSpecificExam()
         {
             // Code Here

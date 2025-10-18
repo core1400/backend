@@ -6,7 +6,6 @@ using MongoConnection.Collections.Course;
 using MongoConnection.Collections.UserModel;
 using MongoConnection.Enums;
 using MongoDB.Driver;
-using System.Data;
 using System.Text.Json;
 
 namespace CoreBackend.Features.users
@@ -25,10 +24,10 @@ namespace CoreBackend.Features.users
             if (role < createUserDTO.role)
                 return new ForbidResult();
 
-            MongoConnection.Collections.UserModel.User? isUserExist =  await _userRepo.GetByPNumAsync(createUserDTO.personalNum);
+            User? isUserExist =  await _userRepo.GetByPNumAsync(createUserDTO.personalNum);
             if (isUserExist == null)
             {
-                MongoConnection.Collections.UserModel.User newUser = new MongoConnection.Collections.UserModel.User
+                User newUser = new User
                 {
                     PersonalNumber = createUserDTO.personalNum,
                     Password = createUserDTO.Password,
@@ -51,10 +50,10 @@ namespace CoreBackend.Features.users
 
         public async Task<ActionResult<List<GetUser>>> GetSeveralUsers(UsersFilterDTO usersFilter)
         {
-            List<MongoConnection.Collections.UserModel.User> users = new List<MongoConnection.Collections.UserModel.User>();
+            List<User> users = new List<User>();
             if (usersFilter.course!=null)
             {
-                var filter = Builders<MongoConnection.Collections.UserModel.User>.Filter.Eq<string>(user=> user.CourseNumber, usersFilter.course);
+                var filter = Builders<User>.Filter.Eq<string>(user=> user.CourseNumber, usersFilter.course);
                 users =  (await _userRepo.GetByFilterAsync(filter)).ToList();
             }
             if(usersFilter.commander !=null)
@@ -67,7 +66,7 @@ namespace CoreBackend.Features.users
                     {
                         foreach(var userID in course.Students)
                         {
-                            MongoConnection.Collections.UserModel.User? user = await _userRepo.GetByIdAsync(userID);
+                            User? user = await _userRepo.GetByIdAsync(userID);
                             if(user != null && !users.Any(u=>u.Id == user.Id))
                                 users.Add(user);
                         }
@@ -84,7 +83,7 @@ namespace CoreBackend.Features.users
                     {
                         foreach (var userID in course.Students)
                         {
-                            MongoConnection.Collections.UserModel.User? user = await _userRepo.GetByIdAsync(userID);
+                            User? user = await _userRepo.GetByIdAsync(userID);
                             if (user != null && !users.Any(u => u.Id == user.Id))
                                 users.Add(user);
                         }
@@ -92,7 +91,7 @@ namespace CoreBackend.Features.users
                 }
             }
             List<GetUser> getUsers = new List<GetUser>();
-            foreach(MongoConnection.Collections.UserModel.User user in users)
+            foreach(User user in users)
             {
                 GetUser getUser = new GetUser();
                 getUser.User = user;
@@ -110,7 +109,7 @@ namespace CoreBackend.Features.users
 
         public async Task<ActionResult> RemoveSpecificUser(string userID,UserRole role)
         {
-            MongoConnection.Collections.UserModel.User? user = await _userRepo.GetByIdAsync(userID);
+            User? user = await _userRepo.GetByIdAsync(userID);
             if (user == null)
                 return new NotFoundResult();
             UserRole toEditRole = user.Role;
@@ -121,7 +120,7 @@ namespace CoreBackend.Features.users
 
         public async Task<ActionResult> UpdateSpecificUser(string userID, JsonElement updateElements,UserRole role)
         {
-            MongoConnection.Collections.UserModel.User? user = await _userRepo.GetByIdAsync(userID);
+            User? user = await _userRepo.GetByIdAsync(userID);
             if(user == null)
                 return new NotFoundResult();
             UserRole toEditRole = user.Role;

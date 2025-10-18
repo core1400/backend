@@ -1,3 +1,4 @@
+using CoreBackend.Features.auth.DTOs;
 using CoreBackend.Features.Courses.DTOs;
 using CoreBackend.Features.Courses.ROs;
 using Microsoft.AspNetCore.Mvc;
@@ -102,8 +103,13 @@ namespace CoreBackend.Features.Courses
             List<string>? updatedStudents = (course.Students ?? Array.Empty<string>()).ToList();
             if (!updatedStudents.Contains(dto.userID))
                 updatedStudents.Add(dto.userID);
+            string values = string.Join(",", updatedStudents.Select(s => $"\"{s}\""));
 
-            JsonElement json = JsonSerializer.SerializeToElement(new { Students = updatedStudents });
+            string jsonstring = $@"
+                        {{
+                            ""students"": {{ ""op"": ""set"", ""value"": [{values}] }}
+                        }}";
+            JsonElement json = JsonSerializer.Deserialize<JsonElement>(jsonstring);
             await _courseRepo.UpdateByCNumAsync(course.CourseNumber, json);
 
             return new NoContentResult();
@@ -115,9 +121,16 @@ namespace CoreBackend.Features.Courses
             if (course == null)
                 return new NotFoundResult();
 
-            string[] updatedStudents = (course.Students ?? Array.Empty<string>()).Where(s => s != studentID).ToArray();
-            JsonElement json = JsonSerializer.SerializeToElement(new { Students = updatedStudents });
+            List<string>? updatedStudents = (course.Students ?? Array.Empty<string>()).ToList();
+            if (updatedStudents.Contains(studentID))
+                updatedStudents.Remove(studentID);
+            string values = string.Join(",", updatedStudents.Select(s => $"\"{s}\""));
 
+            string jsonstring = $@"
+                        {{
+                            ""students"": {{ ""op"": ""set"", ""value"": [{values}] }}
+                        }}";
+            JsonElement json = JsonSerializer.Deserialize<JsonElement>(jsonstring);
             await _courseRepo.UpdateByCNumAsync(course.CourseNumber, json);
             return new NoContentResult();
         }
